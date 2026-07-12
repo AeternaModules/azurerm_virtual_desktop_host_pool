@@ -58,47 +58,18 @@ EOT
   validation {
     condition = alltrue([
       for k, v in var.virtual_desktop_host_pools : (
-        v.scheduled_agent_updates.schedule == null || (length(v.scheduled_agent_updates.schedule) <= 2)
+        v.scheduled_agent_updates == null || (v.scheduled_agent_updates.schedule == null || (length(v.scheduled_agent_updates.schedule) <= 2))
       )
     ])
     error_message = "Each schedule list must contain at most 2 items"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.virtual_desktop_host_pools : (
-        length(v.name) > 0
-      )
-    ])
-    error_message = "must not be empty"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.virtual_desktop_host_pools : (
-        v.friendly_name == null || (length(v.friendly_name) >= 1 && length(v.friendly_name) <= 64)
-      )
-    ])
-    error_message = "must be between 1 and 64 characters"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.virtual_desktop_host_pools : (
-        v.description == null || (length(v.description) >= 1 && length(v.description) <= 512)
-      )
-    ])
-    error_message = "must be between 1 and 512 characters"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.virtual_desktop_host_pools : (
-        v.maximum_sessions_allowed == null || (v.maximum_sessions_allowed >= 0 && v.maximum_sessions_allowed <= 999999)
-      )
-    ])
-    error_message = "must be between 0 and 999999"
   }
   # --- Unconfirmed validation candidates, derived from azurerm_virtual_desktop_host_pool's provider source ---
   # Not auto-enabled: either a bespoke provider validator we can't safely translate,
   # or a path that crosses a list-typed block (needs its own for_each wrapping).
   # Review, translate into a real validation{} block above, and delete once confirmed.
+  # path: name
+  #   condition: length(value) > 0
+  #   message:   must not be empty
   # path: location
   #   source:    location.EnhancedValidate: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
   # path: resource_group_name
@@ -119,10 +90,19 @@ EOT
   #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
   # path: load_balancer_type
   #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
+  # path: friendly_name
+  #   condition: length(value) >= 1 && length(value) <= 64
+  #   message:   must be between 1 and 64 characters
+  # path: description
+  #   condition: length(value) >= 1 && length(value) <= 512
+  #   message:   must be between 1 and 512 characters
   # path: personal_desktop_assignment_type
   #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
   # path: public_network_access
   #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
+  # path: maximum_sessions_allowed
+  #   condition: value >= 0 && value <= 999999
+  #   message:   must be between 0 and 999999
   # path: preferred_app_group_type
   #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
   # path: scheduled_agent_updates.schedule.day_of_week
