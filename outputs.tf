@@ -1,3 +1,7 @@
+output "virtual_desktop_host_pools_id" {
+  description = "Map of id values across all virtual_desktop_host_pools, keyed the same as var.virtual_desktop_host_pools"
+  value       = { for k, v in azurerm_virtual_desktop_host_pool.virtual_desktop_host_pools : k => v.id }
+}
 output "virtual_desktop_host_pools_custom_rdp_properties" {
   description = "Map of custom_rdp_properties values across all virtual_desktop_host_pools, keyed the same as var.virtual_desktop_host_pools"
   value       = { for k, v in azurerm_virtual_desktop_host_pool.virtual_desktop_host_pools : k => v.custom_rdp_properties }
