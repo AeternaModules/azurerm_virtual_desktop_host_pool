@@ -37,22 +37,22 @@ EOT
     custom_rdp_properties            = optional(string)
     description                      = optional(string)
     friendly_name                    = optional(string)
-    maximum_sessions_allowed         = optional(number) # Default: 999999
+    maximum_sessions_allowed         = optional(number)
     personal_desktop_assignment_type = optional(string)
-    preferred_app_group_type         = optional(string) # Default: "Desktop"
-    public_network_access            = optional(string) # Default: "Enabled"
-    start_vm_on_connect              = optional(bool)   # Default: false
+    preferred_app_group_type         = optional(string)
+    public_network_access            = optional(string)
+    start_vm_on_connect              = optional(bool)
     tags                             = optional(map(string))
-    validate_environment             = optional(bool) # Default: false
+    validate_environment             = optional(bool)
     vm_template                      = optional(string)
     scheduled_agent_updates = optional(object({
-      enabled = optional(bool) # Default: false
+      enabled = optional(bool)
       schedule = optional(list(object({
         day_of_week = string
         hour_of_day = number
       })))
-      timezone                  = optional(string) # Default: "UTC"
-      use_session_host_timezone = optional(bool)   # Default: false
+      timezone                  = optional(string)
+      use_session_host_timezone = optional(bool)
     }))
   }))
   validation {
