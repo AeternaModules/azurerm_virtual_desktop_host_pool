@@ -63,68 +63,86 @@ EOT
     ])
     error_message = "Each schedule list must contain at most 2 items"
   }
-  # --- Unconfirmed validation candidates, derived from azurerm_virtual_desktop_host_pool's provider source ---
-  # Not auto-enabled: either a bespoke provider validator we can't safely translate,
-  # or a path that crosses a list-typed block (needs its own for_each wrapping).
-  # Review, translate into a real validation{} block above, and delete once confirmed.
-  # path: name
-  #   condition: length(value) > 0
-  #   message:   must not be empty
-  # path: location
-  #   source:    location.EnhancedValidate: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
-  # path: resource_group_name
-  #   condition: length(value) <= 90
-  #   message:   [from resourcegroups.ValidateName: invalid when len(value) > 90]
-  #   source:    [from resourcegroups.ValidateName: invalid when len(value) > 90]
-  # path: resource_group_name
-  #   condition: !endswith(value, ".")
-  #   message:   [from resourcegroups.ValidateName: must not end with "."]
-  #   source:    [from resourcegroups.ValidateName: must not end with "."]
-  # path: resource_group_name
-  #   condition: length(value) != 0
-  #   message:   [from resourcegroups.ValidateName: invalid when len(value) == 0]
-  #   source:    [from resourcegroups.ValidateName: invalid when len(value) == 0]
-  # path: resource_group_name
-  #   source:    [from resourcegroups.ValidateName] !matched
-  # path: type
-  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
-  # path: load_balancer_type
-  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
-  # path: friendly_name
-  #   condition: length(value) >= 1 && length(value) <= 64
-  #   message:   must be between 1 and 64 characters
-  # path: description
-  #   condition: length(value) >= 1 && length(value) <= 512
-  #   message:   must be between 1 and 512 characters
-  # path: personal_desktop_assignment_type
-  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
-  # path: public_network_access
-  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
-  # path: maximum_sessions_allowed
-  #   condition: value >= 0 && value <= 999999
-  #   message:   must be between 0 and 999999
-  # path: preferred_app_group_type
-  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
-  # path: scheduled_agent_updates.schedule.day_of_week
-  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
-  # path: scheduled_agent_updates.schedule.hour_of_day
-  #   condition: value >= 0 && value <= 23
-  #   message:   must be between 0 and 23
-  # path: vm_template
-  #   source:    validation.StringIsJSON(...) - no translation rule yet, add one
-  # path: tags
-  #   condition: length(value) <= 50
-  #   message:   [from tags.Validate: invalid when len(value) > 50]
-  #   source:    [from tags.Validate: invalid when len(value) > 50]
-  # path: tags
-  #   condition: length(value) <= 512
-  #   message:   [from tags.Validate: invalid when len(value) > 512]
-  #   source:    [from tags.Validate: invalid when len(value) > 512]
-  # path: tags
-  #   source:    [from tags.Validate] err != nil
-  # path: tags
-  #   condition: length(value) <= 256
-  #   message:   [from tags.Validate: invalid when len(value) > 256]
-  #   source:    [from tags.Validate: invalid when len(value) > 256]
+  validation {
+    condition = alltrue([
+      for k, v in var.virtual_desktop_host_pools : (
+        length(v.name) > 0
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.virtual_desktop_host_pools : (
+        length(v.resource_group_name) <= 90
+      )
+    ])
+    error_message = "[from resourcegroups.ValidateName: invalid when len(value) > 90]"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.virtual_desktop_host_pools : (
+        !endswith(v.resource_group_name, ".")
+      )
+    ])
+    error_message = "[from resourcegroups.ValidateName: must not end with \".\"]"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.virtual_desktop_host_pools : (
+        length(v.resource_group_name) != 0
+      )
+    ])
+    error_message = "[from resourcegroups.ValidateName: invalid when len(value) == 0]"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.virtual_desktop_host_pools : (
+        v.friendly_name == null || (length(v.friendly_name) >= 1 && length(v.friendly_name) <= 64)
+      )
+    ])
+    error_message = "must be between 1 and 64 characters"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.virtual_desktop_host_pools : (
+        v.description == null || (length(v.description) >= 1 && length(v.description) <= 512)
+      )
+    ])
+    error_message = "must be between 1 and 512 characters"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.virtual_desktop_host_pools : (
+        v.maximum_sessions_allowed == null || (v.maximum_sessions_allowed >= 0 && v.maximum_sessions_allowed <= 999999)
+      )
+    ])
+    error_message = "must be between 0 and 999999"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.virtual_desktop_host_pools : (
+        v.scheduled_agent_updates == null || (v.scheduled_agent_updates.schedule == null || alltrue([for item in v.scheduled_agent_updates.schedule : (item.hour_of_day >= 0 && item.hour_of_day <= 23)]))
+      )
+    ])
+    error_message = "must be between 0 and 23"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.virtual_desktop_host_pools : (
+        v.vm_template == null || (can(jsondecode(v.vm_template)))
+      )
+    ])
+    error_message = "must be valid JSON"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.virtual_desktop_host_pools : (
+        v.tags == null || (length(v.tags) <= 50)
+      )
+    ])
+    error_message = "[from tags.Validate: invalid when len(value) > 50]"
+  }
+  # Note: 11 additional provider-side validators are enforced at apply time but not mirrored as validation{} blocks here (bespoke or non-mechanically-translatable).
 }
 
